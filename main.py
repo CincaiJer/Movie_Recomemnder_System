@@ -2,13 +2,27 @@ import streamlit as st
 import joblib
 from joblib import load
 import pandas as pd
+import os
+
+# Debugging: Check if files exist
+if not os.path.exists('movie_recommender.joblib'):
+    st.error("File 'movie_recommender.joblib' not found.")
+    st.stop()
+
+if not os.path.exists('titles.xls'):
+    st.error("File 'titles.xls' not found.")
+    st.stop()
+
+if not os.path.exists('user_interactions.xls'):
+    st.error("File 'user_interactions.xls' not found.")
+    st.stop()
 
 # Load the saved model and data
 try:
     model = load('movie_recommender.joblib')  # Your trained SVD model
     titles = pd.read_csv('titles.xls', usecols=['id', 'title', 'genres', 'release_year'])  # Movie metadata
     user_interactions = pd.read_csv('user_interactions.xls', usecols=['user_id', 'id', 'rating'])  # User interactions
-except FileNotFoundError as e:
+except Exception as e:
     st.error(f"Error loading file: {e}")
     st.stop()
 
