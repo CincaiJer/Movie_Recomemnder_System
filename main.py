@@ -1,3 +1,5 @@
+!conda install -c conda-forge scikit-surprise -y
+
 import streamlit as st
 import joblib
 import pandas as pd
