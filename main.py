@@ -1,61 +1,65 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 import joblib
+import pandas as pd
 from surprise import SVD
 
-# Load the datasets
-@st.cache_data
-def load_data():
-    credit = pd.read_csv("credits.xls")
-    title = pd.read_csv("titles.xls")
-    user = pd.read_csv("user_interactions.xls")
+# Load the saved model
+model = joblib.load('movie_recommender.joblib')  # Your trained SVD model
+
+# Load only necessary data for mapping and filtering
+titles = pd.read_csv('titles.xls', usecols=['id', 'title', 'genres', 'release_year'])  # Movie metadata
+user_interactions = pd.read_csv('user_interactions.xls', usecols=['user_id', 'id', 'rating'])  # User interactions
+
+# Streamlit App
+st.title("Movie Recommendation System")
+
+# User Input
+user_id = st.number_input("Enter your User ID", min_value=1, max_value=10000, value=1)
+genre_filter = st.text_input("Enter a genre to filter (optional):")
+year_filter = st.number_input("Enter a release year to filter (optional):", min_value=1900, max_value=2023)
+
+# Recommendation Function
+def recommend_for_user(user_id, genre_filter=None, year_filter=None):
+    # Get movies the user has already rated
+    user_rated_movies = user_interactions[user_interactions['user_id'] == user_id]['id'].tolist()
     
-    # Aggregate credit details before merging
-    credit_agg = credit.groupby("id").agg({
-        "person_id": list,  
-        "name": list,      
-        "character": list,  
-        "role": list       
-    }).reset_index()
+    # Filter movies based on genre and year
+    filtered_movies = titles.copy()
     
-    # Merge titles with aggregated credits
-    combine = title.merge(credit_agg, on="id", how="left")
+    if genre_filter:
+        filtered_movies = filtered_movies[filtered_movies['genres'].str.contains(genre_filter, case=False, na=False)]
     
-    # Merge user interactions with the combined titles+credits dataset
-    final_data = user.merge(combine, left_on="id", right_on="id", how="left")
+    if year_filter:
+        filtered_movies = filtered_movies[filtered_movies['release_year'] == year_filter]
     
-    return final_data
-
-df = load_data()
-
-# Load the trained recommendation model
-@st.cache_resource
-def load_model():
-    return joblib.load("movie_recommender.joblib")  # Load your saved model
-
-svd_model = load_model()
-
-# Function to recommend movies for a user
-def recommend_movies(user_id, model, df):
-    all_movies = df['id'].unique()
-    user_rated_movies = df[df['user_id'] == user_id]['id'].values
-    unrated_movies = [movie for movie in all_movies if movie not in user_rated_movies]
+    if filtered_movies.empty:
+        return [{"title": "No movies found matching your criteria.", "rating": None}]
     
-    pred_ratings = [model.predict(user_id, movie).est for movie in unrated_movies]
-    top_movies = np.argsort(pred_ratings)[-5:][::-1]  # Get top 5 recommendations
+    # Get unrated movies
+    unrated_movies = filtered_movies[~filtered_movies['id'].isin(user_rated_movies)]
     
-    return [unrated_movies[i] for i in top_movies]
+    if unrated_movies.empty:
+        return [{"title": "No new recommendations available.", "rating": None}]
+    
+    # Predict ratings for unrated movies
+    predictions = []
+    for movie_id in unrated_movies['id'].unique():
+        pred = model.predict(user_id, movie_id)
+        movie_title = unrated_movies[unrated_movies['id'] == movie_id]['title'].values[0]
+        predictions.append({"title": movie_title, "rating": pred.est})
+    
+    # Sort by predicted rating (descending)
+    predictions.sort(key=lambda x: x['rating'], reverse=True)
+    
+    return predictions[:10]  # Return top 10 recommendations
 
-# Streamlit UI
-st.title("🎬 Movie Recommender System")
-
-# Input user ID
-user_id = st.number_input("Enter Your User ID:", min_value=1, step=1)
-
-# Button to get recommendations
+# Get Recommendations
 if st.button("Get Recommendations"):
-    recommendations = recommend_movies(user_id, svd_model, df)
-    st.write("**Recommended Movies:**")
-    for i, movie in enumerate(recommendations, start=1):
-        st.write(f"{i}. {movie}")
+    recommendations = recommend_for_user(user_id, genre_filter, year_filter)
+    
+    st.write("### Top Recommendations:")
+    for movie in recommendations:
+        if movie['rating'] is not None:
+            st.write(f"**{movie['title']}** (Predicted Rating: {movie['rating']:.2f})")
+        else:
+            st.write(f"**{movie['title']}**")
