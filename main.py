@@ -3,7 +3,7 @@ import joblib
 import pandas as pd
 
 # Load the saved model
-model = joblib.load('movie_recommender.joblib')  # Your trained SVD model
+model = load('movie_recommender.joblib')  # Your trained SVD model
 
 # Load only necessary data for mapping and filtering
 titles = pd.read_csv('titles.xls', usecols=['id', 'title', 'genres', 'release_year'])  # Movie metadata
