@@ -1,5 +1,5 @@
 import streamlit as st
-import joblib
+from joblib import load
 import pandas as pd
 
 # Load the saved model
