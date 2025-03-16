@@ -1,8 +1,9 @@
 streamlit
 Cython
 pandas
-numpy
 joblib
 scikit-learn
+numpy<2
+Cython
 scikit-surprise==1.1.3
 
