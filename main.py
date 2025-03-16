@@ -31,7 +31,8 @@ st.title("Movie Recommendation System")
 
 # User Input
 user_id = st.number_input("Enter your User ID", min_value=1, max_value=10000, value=1)
-genre_filter = st.text_input("Enter a genre to filter (optional):").strip()  # Remove leading/trailing spaces
+genre_options = ["action","animation","comedy","crime","documentation","drama","european","family","fantasy","history","horror","music","reality","romance","scifi","sport","thriller","war","western"]
+genre_filter = st.selectbox("Choose a genre to filter:",genre_options)
 year_filter = st.number_input("Enter a release year to filter (optional):", min_value=1900, max_value=2023, value=None)
 
 # Recommendation Function
