@@ -1,8 +1,8 @@
-streamlit
+streamlit==1.43.2
 pandas
-numpy
+numpy==1.23.5
 scikit-learn
-scikit-surprise
+scikit-surprise==1.1.4
 joblib
 nltk
 cython
