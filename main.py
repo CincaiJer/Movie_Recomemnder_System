@@ -5,8 +5,8 @@ import pandas as pd
 import os
 
 # Debugging: Check if files exist
-if not os.path.exists('movie_recommender.joblib'):
-    st.error("File 'movie_recommender.joblib' not found.")
+if not os.path.exists('movie_recommender_svd.joblib'):
+    st.error("File 'movie_recommender_svd.joblib' not found.")
     st.stop()
 
 if not os.path.exists('titles.xls'):
@@ -19,7 +19,7 @@ if not os.path.exists('user_interactions.xls'):
 
 # Load the saved model and data
 try:
-    model = load('movie_recommender.joblib')  # Your trained SVD model
+    model = load('movie_recommender_svd.joblib')  # Your trained SVD model
     titles = pd.read_csv('titles.xls', usecols=['id', 'title', 'genres', 'release_year'])  # Movie metadata
     user_interactions = pd.read_csv('user_interactions.xls', usecols=['user_id', 'id', 'rating'])  # User interactions
 except Exception as e:
