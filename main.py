@@ -31,9 +31,17 @@ st.title("Movie Recommendation System")
 
 # User Input
 user_id = st.number_input("Enter your User ID", min_value=1, max_value=10000, value=1)
+
 genre_options = ["action","animation","comedy","crime","documentation","drama","european","family","fantasy","history","horror","music","reality","romance","scifi","sport","thriller","war","western"]
 genre_filter = st.selectbox("Choose a genre to filter:",genre_options)
-year_filter = st.number_input("Enter a release year to filter (optional):", min_value=1900, max_value=2023, value=None)
+
+filter_by_year = st.checkbox("Filter by released year")
+min_year = 1960
+max_year = 2022
+if filter_by_year:
+    year_filter = st.slider("Select a release year", min_year, max_year, 2000)
+else:
+    year_filter = None
 
 # Recommendation Function
 def recommend_for_user(user_id, genre_filter=None, year_filter=None):
