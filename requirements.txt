@@ -2,7 +2,7 @@ streamlit
 pandas
 numpy
 scikit-learn
-scikit-surprise
+scikit-surprise==1.1.4
 joblib
 nltk
 cython
