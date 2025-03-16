@@ -4,7 +4,7 @@ import pandas as pd
 
 # Load the saved model and data
 try:
-    model = joblib.load('movie_recommender.joblib')  # Your trained SVD model
+    model = load('movie_recommender.joblib')  # Your trained SVD model
     titles = pd.read_csv('titles.xls', usecols=['id', 'title', 'genres', 'release_year'])  # Movie metadata
     user_interactions = pd.read_csv('user_interactions.xls', usecols=['user_id', 'id', 'rating'])  # User interactions
 except FileNotFoundError as e:
