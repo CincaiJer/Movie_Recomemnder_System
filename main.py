@@ -2,20 +2,22 @@ import streamlit as st
 import joblib
 import pandas as pd
 
-# Load the saved model
-model = load('movie_recommender.joblib')  # Your trained SVD model
-
-# Load only necessary data for mapping and filtering
-titles = pd.read_csv('titles.xls', usecols=['id', 'title', 'genres', 'release_year'])  # Movie metadata
-user_interactions = pd.read_csv('user_interactions.xls', usecols=['user_id', 'id', 'rating'])  # User interactions
+# Load the saved model and data
+try:
+    model = joblib.load('movie_recommender.joblib')  # Your trained SVD model
+    titles = pd.read_csv('titles.xls', usecols=['id', 'title', 'genres', 'release_year'])  # Movie metadata
+    user_interactions = pd.read_csv('user_interactions.xls', usecols=['user_id', 'id', 'rating'])  # User interactions
+except FileNotFoundError as e:
+    st.error(f"Error loading file: {e}")
+    st.stop()
 
 # Streamlit App
 st.title("Movie Recommendation System")
 
 # User Input
 user_id = st.number_input("Enter your User ID", min_value=1, max_value=10000, value=1)
-genre_filter = st.text_input("Enter a genre to filter (optional):")
-year_filter = st.number_input("Enter a release year to filter (optional):", min_value=1900, max_value=2023)
+genre_filter = st.text_input("Enter a genre to filter (optional):").strip()  # Remove leading/trailing spaces
+year_filter = st.number_input("Enter a release year to filter (optional):", min_value=1900, max_value=2023, value=None)
 
 # Recommendation Function
 def recommend_for_user(user_id, genre_filter=None, year_filter=None):
