@@ -1,7 +1,6 @@
 import streamlit as st
 import joblib
 import pandas as pd
-from surprise import SVD
 
 # Load the saved model
 model = joblib.load('movie_recommender.joblib')  # Your trained SVD model
